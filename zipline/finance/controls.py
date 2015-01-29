@@ -106,9 +106,18 @@ class RestrictedListOrder(TradingControl):
     """
 
     def __init__(self, restricted_list):
+        """
+        restricted list can be an iterable, or
+        a callable that returns an iterable for dynamic restrictions.
+        """
 
         super(RestrictedListOrder, self).__init__()
-        self.restricted_list = set(restricted_list)
+        if hasattr(restricted_list, '__call__'):
+            self.restricted_list = restricted_list
+        else:
+            def rlist():
+                return restricted_list
+            self.restricted_list = rlist
 
     def validate(self,
                  sid,
@@ -119,7 +128,7 @@ class RestrictedListOrder(TradingControl):
         """
         Fail if the sid is in the restricted_list.
         """
-        if sid in self.restricted_list:
+        if sid in self.restricted_list():
             self.fail(sid, amount)
 
 
