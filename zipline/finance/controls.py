@@ -112,12 +112,11 @@ class RestrictedListOrder(TradingControl):
         """
 
         super(RestrictedListOrder, self).__init__()
-        if hasattr(restricted_list, '__call__'):
-            self.restricted_list = restricted_list
-        else:
-            def rlist():
-                return restricted_list
-            self.restricted_list = rlist
+        # if passed a callable, call it, otherwise
+        # wrap what we were passed in a lambda
+        self.restricted_list = \
+            restricted_list if callable(restricted_list) \
+            else (lambda: restricted_list)
 
     def validate(self,
                  sid,
